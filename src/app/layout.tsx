@@ -22,7 +22,7 @@ const wordmarkFont = Krona_One({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://crookedcats.com"),
-  title: "Crooked Cats · Up to no good. As cats do.",
+  title: "Crooked Cats",
   description:
     "A love story. Two people. The end of the world. Our first game is in the works — drop your email to get the first whisper.",
   keywords: ["indie game studio", "san diego", "crooked cats", "video games"],
