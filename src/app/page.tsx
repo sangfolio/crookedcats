@@ -1,175 +1,200 @@
-import Link from "next/link";
-import ScrollReveal from "@/components/ScrollReveal";
+"use client";
+
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 export default function Home() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const spotlightRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let rafId = 0;
+    const handler = (e: PointerEvent) => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const el = spotlightRef.current;
+        if (!el) return;
+        el.style.setProperty("--cx", `${e.clientX}px`);
+        el.style.setProperty("--cy", `${e.clientY}px`);
+      });
+    };
+    window.addEventListener("pointermove", handler);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("pointermove", handler);
+    };
+  }, []);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (status === "loading") return;
+    setStatus("loading");
+    setErrorMessage("");
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
+      setStatus("success");
+      setEmail("");
+    } catch (err) {
+      setStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "Something went wrong");
+    }
+  }
+
   return (
-    <>
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Citrus pattern wallpaper */}
-        <div className="absolute inset-0 bg-repeat opacity-[0.07]" style={{ backgroundImage: "url('/images/wallpaper.png')", backgroundSize: "400px" }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-surface/60 via-surface/80 to-surface" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-lemon/8 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-lime/8 rounded-full blur-3xl" />
+    <section className="flex-1 flex flex-col items-center justify-center px-6 py-20 relative overflow-hidden">
+      {/* Cursor-following spotlight (heist flashlight) */}
+      <div
+        ref={spotlightRef}
+        aria-hidden
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={
+          {
+            "--cx": "50vw",
+            "--cy": "40vh",
+            background:
+              "radial-gradient(620px circle at var(--cx) var(--cy), rgba(220,38,38,0.16) 0%, rgba(220,38,38,0.05) 38%, transparent 72%)",
+          } as CSSProperties
+        }
+      />
 
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight mb-6 animate-fade-in-up">
-            <span className="text-lemon">Lemon</span>
-            <span className="text-lime">Lime</span>
-            <br />
-            <span className="text-text-primary">Studio</span>
-          </h1>
-          <p className="text-xl sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            Crafting games with heart and a splash of citrus
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-            <Link
-              href="/story"
-              className="bg-gradient-to-r from-lemon to-lime text-surface font-bold px-8 py-4 rounded-xl text-lg glow-hover transition-transform hover:scale-105"
-            >
-              Our Story
-            </Link>
-            <a
-              href="https://discord.gg/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border border-white/10 text-text-primary font-medium px-8 py-4 rounded-xl text-lg hover:bg-white/5 transition-colors"
-            >
-              Join Our Discord
-            </a>
-          </div>
-        </div>
+      {/* Subtle film grain — noir vibe */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 pointer-events-none opacity-[0.05] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E\")",
+        }}
+      />
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <svg className="w-6 h-6 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </div>
-      </section>
+      {/* Scattered paw prints — the crew left some traces */}
+      <PawPrint
+        className="absolute top-16 left-10 sm:left-16 w-7 h-7 text-cream/[0.07] paw-drift"
+        style={{ "--rot": "-14deg" } as CSSProperties}
+      />
+      <PawPrint
+        className="absolute bottom-28 right-12 sm:right-20 w-9 h-9 text-heist/[0.10] paw-drift"
+        style={{ "--rot": "16deg", animationDelay: "2s" } as CSSProperties}
+      />
+      <PawPrint
+        className="absolute top-1/3 right-14 w-5 h-5 text-cream/[0.05] paw-drift hidden sm:block"
+        style={{ "--rot": "42deg", animationDelay: "1s" } as CSSProperties}
+      />
+      <PawPrint
+        className="absolute bottom-1/3 left-16 w-6 h-6 text-heist/[0.07] paw-drift hidden sm:block"
+        style={{ "--rot": "-42deg", animationDelay: "3s" } as CSSProperties}
+      />
 
-      {/* Tagline Section */}
-      <section className="py-24 px-6">
-        <ScrollReveal className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-5xl font-bold mb-6">
-            <span className="text-gradient">Two Players. One Dream.</span>
-          </h2>
-          <p className="text-lg text-text-secondary max-w-2xl mx-auto">
-            We&apos;re a husband and wife indie game studio based in sunny San Diego.
-            What started as shared gamer tags became a shared dream — to build
-            the kinds of games we fell in love with.
-          </p>
-        </ScrollReveal>
-      </section>
+      <div className="relative w-full max-w-xl text-center">
+        {/* Wordmark — slightly off-kilter, hence "crooked" */}
+        <h1 className="text-5xl sm:text-7xl font-black tracking-tight leading-[0.95] [text-shadow:_0_4px_30px_rgba(0,0,0,0.6)]">
+          <span className="text-cream inline-block animate-wordmark-1">Crooked</span>{" "}
+          <span className="text-heist inline-block animate-wordmark-2">Cats</span>
+        </h1>
 
-      {/* Game Showcase Section */}
-      <section className="py-24 px-6 bg-surface-light">
-        <div className="max-w-7xl mx-auto">
-          <ScrollReveal className="text-center mb-16">
-            <h2 className="text-sm font-semibold text-lime uppercase tracking-widest mb-3">Now In Development</h2>
-            <h3 className="text-3xl sm:text-5xl font-bold">Our First Game</h3>
-          </ScrollReveal>
+        {/* Tagline */}
+        <p
+          className="text-text-secondary text-lg sm:text-xl mt-7 animate-fade-in-stagger"
+          style={{ animationDelay: "0.7s" }}
+        >
+          Plotting something good.
+        </p>
 
-          <ScrollReveal delay={200}>
-            <div className="relative rounded-2xl overflow-hidden border border-white/5 bg-surface-card">
-              {/* GAME ART: Replace with your game cover/screenshot */}
-              {/* <img src="/images/game-cover.jpg" alt="Our first game" className="absolute inset-0 w-full h-full object-cover" /> */}
-              <div className="aspect-video bg-gradient-to-br from-surface-card via-surface-light to-surface-card flex items-center justify-center">
-                <div className="text-center px-6">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-lemon/20 to-lime/20 flex items-center justify-center">
-                    <svg className="w-10 h-10 text-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                    </svg>
-                  </div>
-                  <p className="text-2xl font-bold text-text-primary mb-2">Something Special is Brewing</p>
-                  <p className="text-text-secondary max-w-md mx-auto">
-                    We&apos;re hard at work on our debut title. Follow us on Discord to
-                    be the first to see what we&apos;re cooking up.
-                  </p>
-                  <a
-                    href="https://discord.gg/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block mt-6 bg-[#5865F2] text-white font-medium px-6 py-3 rounded-lg hover:bg-[#4752C4] transition-colors"
-                  >
-                    Get Notified on Discord
-                  </a>
-                </div>
-              </div>
+        {/* About */}
+        <p
+          className="text-text-muted text-sm sm:text-base mt-3 max-w-md mx-auto leading-relaxed animate-fade-in-stagger"
+          style={{ animationDelay: "0.85s" }}
+        >
+          An indie game studio. Husband, wife, and two cats with very bad
+          intentions. Our first game is in the works.
+        </p>
+
+        {/* Newsletter form */}
+        <form
+          onSubmit={handleSubmit}
+          className="mt-10 animate-fade-in-stagger"
+          style={{ animationDelay: "1.0s" }}
+          noValidate
+        >
+          {status === "success" ? (
+            <div className="bg-surface-card border border-heist/40 rounded-xl px-6 py-5 text-center shadow-[0_0_40px_rgba(220,38,38,0.12)]">
+              <p className="text-cream font-semibold text-lg">You&apos;re in.</p>
+              <p className="text-text-secondary text-sm mt-1">
+                Welcome to the crew. We&apos;ll be in touch when we&apos;ve cased the joint.
+              </p>
             </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* Meet The Team Teaser */}
-      <section className="py-24 px-6">
-        <div className="max-w-7xl mx-auto">
-          <ScrollReveal className="text-center mb-12">
-            <h2 className="text-sm font-semibold text-lemon uppercase tracking-widest mb-3">The Team</h2>
-            <h3 className="text-3xl sm:text-5xl font-bold mb-4">Two Halves of a Whole Lime</h3>
-            <p className="text-text-secondary max-w-xl mx-auto">
-              We met online, bonded over games, and now we&apos;re making them together
-              from our studio in San Diego.
-            </p>
-          </ScrollReveal>
-
-          <ScrollReveal delay={200}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-              <div className="bg-surface-card border border-white/5 rounded-2xl p-8 text-center hover:border-lemon/20 transition-colors group">
-                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-lemon/20 to-lemon/5 flex items-center justify-center group-hover:from-lemon/30 transition-colors">
-                  <span className="text-4xl">🍋</span>
-                </div>
-                <h4 className="text-xl font-bold text-lemon mb-1">Lemon</h4>
-                <p className="text-text-muted text-sm">Co-Founder</p>
-              </div>
-
-              <div className="bg-surface-card border border-white/5 rounded-2xl p-8 text-center hover:border-lime/20 transition-colors group">
-                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-lime/20 to-lime/5 flex items-center justify-center group-hover:from-lime/30 transition-colors">
-                  <span className="text-4xl">🍈</span>
-                </div>
-                <h4 className="text-xl font-bold text-lime mb-1">Lime</h4>
-                <p className="text-text-muted text-sm">Co-Founder</p>
-              </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:items-stretch bg-surface-card border border-white/10 rounded-xl p-1.5 focus-within:border-heist/50 focus-within:shadow-[0_0_30px_rgba(220,38,38,0.18)] transition-all duration-300">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                aria-label="Email address"
+                className="flex-1 bg-transparent px-4 py-3 text-text-primary placeholder:text-text-muted outline-none min-w-0"
+                disabled={status === "loading"}
+              />
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="bg-heist text-cream font-semibold px-6 py-3 rounded-lg hover:bg-heist-light hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {status === "loading" ? "Sneaking you in…" : "I'm in"}
+              </button>
             </div>
-          </ScrollReveal>
-
-          <ScrollReveal delay={400} className="text-center mt-10">
-            <Link
-              href="/team"
-              className="text-lime font-medium hover:underline underline-offset-4"
-            >
-              Learn more about the team &rarr;
-            </Link>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="relative py-24 px-6 bg-surface-light overflow-hidden">
-        <div className="absolute inset-0 bg-repeat opacity-[0.04]" style={{ backgroundImage: "url('/images/wallpaper.png')", backgroundSize: "300px" }} />
-        <ScrollReveal className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Stay in the Loop</h2>
-          <p className="text-text-secondary mb-8 max-w-lg mx-auto">
-            Join our Discord community to follow development, share feedback,
-            and be the first to play.
+          )}
+          {status === "error" && (
+            <p className="text-heist-light text-sm mt-3">{errorMessage}</p>
+          )}
+          <p className="text-text-muted text-xs mt-3 tracking-wide">
+            No spam. Just dispatches from the heist.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="https://discord.gg/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-[#5865F2] text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-[#4752C4] transition-colors"
-            >
-              Join Discord
-            </a>
-            <Link
-              href="/contact"
-              className="border border-white/10 text-text-primary font-medium px-8 py-4 rounded-xl text-lg hover:bg-white/5 transition-colors"
-            >
-              Contact Us
-            </Link>
-          </div>
-        </ScrollReveal>
-      </section>
-    </>
+        </form>
+
+        {/* Discord */}
+        <a
+          href="https://discord.gg/JKrTzKNtpK"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex items-center gap-1.5 mt-10 text-text-secondary text-sm hover:text-cream transition-colors animate-fade-in-stagger"
+          style={{ animationDelay: "1.15s" }}
+        >
+          or hang out in the safehouse
+          <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+        </a>
+      </div>
+    </section>
+  );
+}
+
+function PawPrint({
+  className = "",
+  style,
+}: {
+  className?: string;
+  style?: CSSProperties;
+}) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      className={className}
+      style={style}
+    >
+      <ellipse cx="12" cy="15.5" rx="4.5" ry="3.6" />
+      <ellipse cx="5.5" cy="10" rx="1.8" ry="2.2" />
+      <ellipse cx="18.5" cy="10" rx="1.8" ry="2.2" />
+      <ellipse cx="9" cy="6" rx="1.4" ry="1.8" />
+      <ellipse cx="15" cy="6" rx="1.4" ry="1.8" />
+    </svg>
   );
 }

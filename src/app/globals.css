@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-lemon: #f5e642;
-  --color-lemon-light: #faf08a;
-  --color-lemon-dark: #c4b820;
-  --color-lime: #a3e635;
-  --color-lime-light: #d9f99d;
-  --color-lime-dark: #65a30d;
+  --color-cream: #f5e8c8;
+  --color-cream-light: #fbf3dd;
+  --color-cream-dark: #c4b89a;
+  --color-heist: #dc2626;
+  --color-heist-light: #ef4444;
+  --color-heist-dark: #991b1b;
   --color-surface: #0a0a0a;
   --color-surface-light: #141414;
   --color-surface-card: #1a1a1a;
@@ -25,43 +25,72 @@ body {
   color: var(--color-text-primary);
 }
 
+/* ---- Generic fades ---- */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in-up {
   animation: fadeInUp 0.7s ease-out forwards;
 }
 
-.animate-on-scroll {
+/* ---- Staggered fade for hero content beneath the wordmark ---- */
+.animate-fade-in-stagger {
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  animation: fadeInUp 0.85s ease-out forwards;
 }
 
-.animate-on-scroll.visible {
-  opacity: 1;
-  transform: translateY(0);
+/* ---- Wordmark entry: two halves come in slightly crooked ---- */
+@keyframes wordmarkIn1 {
+  from { opacity: 0; transform: translateY(28px) rotate(-3deg); }
+  to   { opacity: 1; transform: translateY(0)   rotate(-2deg); }
+}
+@keyframes wordmarkIn2 {
+  from { opacity: 0; transform: translateY(28px) rotate(3deg); }
+  to   { opacity: 1; transform: translateY(0)   rotate(2deg); }
 }
 
+.animate-wordmark-1 {
+  opacity: 0;
+  animation: wordmarkIn1 1s cubic-bezier(0.2, 1, 0.3, 1) 0.15s forwards;
+}
+.animate-wordmark-2 {
+  opacity: 0;
+  animation: wordmarkIn2 1s cubic-bezier(0.2, 1, 0.3, 1) 0.4s forwards;
+}
+
+/* ---- Paw print idle drift ---- */
+/* Each paw sets its own --rot via inline style; the drift animation respects it. */
+@keyframes pawDrift {
+  0%, 100% { transform: translateY(0)    rotate(var(--rot, 0deg)); }
+  50%      { transform: translateY(-6px) rotate(calc(var(--rot, 0deg) + 4deg)); }
+}
+
+.paw-drift {
+  animation: pawDrift 12s ease-in-out infinite;
+}
+
+/* ---- Accent heading color ---- */
 .text-gradient {
-  background: linear-gradient(135deg, var(--color-lemon) 0%, var(--color-lime) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-heist);
 }
 
-.glow-hover {
-  transition: box-shadow 0.3s ease;
+/* ---- Selection color ---- */
+::selection {
+  background: rgba(220, 38, 38, 0.3);
+  color: var(--color-text-primary);
 }
 
-.glow-hover:hover {
-  box-shadow: 0 0 20px rgba(163, 230, 53, 0.3), 0 0 40px rgba(245, 230, 66, 0.15);
+/* ---- Respect users who prefer less motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in-stagger,
+  .animate-wordmark-1,
+  .animate-wordmark-2,
+  .paw-drift {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

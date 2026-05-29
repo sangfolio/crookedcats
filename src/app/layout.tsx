@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
 const inter = Inter({
@@ -10,15 +9,18 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Lemon Lime Studio — Indie Game Studio",
+  title: "Crooked Cats · Plotting something good.",
   description:
-    "Lemon Lime Studio is an indie game studio based in San Diego. A husband and wife team crafting games with heart and a splash of citrus.",
-  keywords: ["indie game studio", "san diego", "lemon lime studio", "video games"],
+    "An indie game studio. Husband, wife, and two cats with very bad intentions. Our first game is in the works — drop your email to get the first whisper.",
+  keywords: ["indie game studio", "san diego", "crooked cats", "video games"],
+  icons: {
+    icon: "/images/catlogo.svg",
+  },
   openGraph: {
-    title: "Lemon Lime Studio",
-    description: "Indie game studio based in San Diego. Crafting games with heart.",
-    url: "https://lemonlimestudio.com",
-    siteName: "Lemon Lime Studio",
+    title: "Crooked Cats",
+    description: "Plotting something good. An indie game studio in San Diego.",
+    url: "https://crookedcats.com",
+    siteName: "Crooked Cats",
     type: "website",
   },
 };
@@ -31,8 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} antialiased`}>
       <body className="min-h-screen flex flex-col font-[family-name:var(--font-inter)]">
-        <Navigation />
-        <main className="flex-1 pt-16">{children}</main>
+        <main className="flex-1 flex flex-col">{children}</main>
         <Footer />
       </body>
     </html>
