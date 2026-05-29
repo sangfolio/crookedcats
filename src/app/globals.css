@@ -2,6 +2,7 @@
 
 @theme {
   --font-display: var(--font-display);
+  --font-wordmark: var(--font-wordmark);
   --color-cream: #f5e8c8;
   --color-cream-light: #fbf3dd;
   --color-cream-dark: #c4b89a;

@@ -189,7 +189,7 @@ export default function Home() {
         </div>
 
         {/* Wordmark */}
-        <h1 className="font-display mt-8 sm:mt-10 text-2xl sm:text-4xl tracking-tight leading-[1.1] [text-shadow:_0_4px_30px_rgba(0,0,0,0.6)] whitespace-nowrap">
+        <h1 className="font-wordmark mt-8 sm:mt-10 text-4xl sm:text-6xl tracking-[-0.07em] leading-[0.95] [text-shadow:_0_4px_30px_rgba(0,0,0,0.6)] whitespace-nowrap lowercase">
           <span className="text-cream inline-block animate-wordmark-1">Crooked</span>{" "}
           <span className="text-heist inline-block animate-wordmark-2">Cats</span>
         </h1>

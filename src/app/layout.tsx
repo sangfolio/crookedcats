@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Rock_Salt } from "next/font/google";
+import { Inter, Rock_Salt, Krona_One } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 
@@ -10,6 +10,12 @@ const inter = Inter({
 
 const displayFont = Rock_Salt({
   variable: "--font-display",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const wordmarkFont = Krona_One({
+  variable: "--font-wordmark",
   subsets: ["latin"],
   weight: "400",
 });
@@ -44,7 +50,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${displayFont.variable} antialiased`}>
+    <html lang="en" className={`${inter.variable} ${displayFont.variable} ${wordmarkFont.variable} antialiased`}>
       <body className="min-h-screen flex flex-col font-[family-name:var(--font-inter)]">
         <main className="flex-1 flex flex-col">{children}</main>
         <Footer />
