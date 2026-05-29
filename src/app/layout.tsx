@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "A love story. Two people. The end of the world. Our first game is in the works — drop your email to get the first whisper.",
   keywords: ["indie game studio", "san diego", "crooked cats", "video games"],
   icons: {
-    icon: "/images/catlogo.svg",
+    icon: "/images/zeus.png",
   },
   openGraph: {
     title: "Crooked Cats",
